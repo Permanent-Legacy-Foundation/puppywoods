@@ -1,19 +1,14 @@
 * {
     box-sizing: border-box;
 }
-
 :root{
     --bkcolor: #fff;
 }
 
-
 .header {
-  
   height: 60px;
   top: 0px;
   width: 100%;
-  border: 1px solid;
-  /* position: fixed; */
 }
 .header h1{
     margin:0px;
@@ -21,20 +16,16 @@
 }
 
 .body-area{
-    border: 1px solid #ff9d00;
     width: 85vw;
     margin: auto;
-    
 }
 
 .left-menu {
-  border: 1px solid red;
   width: 200px;
   padding:5px;
   display: none;
 }
 .menu-list-wrp{
-    /* border: 1px solid; */
     height: 60vh;
     overflow-y: auto;
     padding-right: 5px;
@@ -120,8 +111,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    
 }
 
 .nav-bar .fa{
@@ -129,7 +118,7 @@
 }
 
 .main-body {
-    border: 1px solid green;
+    /* border: 1px solid green; */
     width: 85vw;
     height: 80vh;
     margin: auto;
@@ -138,7 +127,7 @@
 }
 
 .main-body .slide-frame{
-    border: 1px solid red;
+    /* border: 1px solid red; */
     display: flex;
     flex-direction: row;
     flex-flow: row;
@@ -159,7 +148,7 @@
     border: 1px solid blue;
     width: 85vw;
     height: 80vh;
-    padding: 0px 5px;
+    padding: 10px;
     
 }
 

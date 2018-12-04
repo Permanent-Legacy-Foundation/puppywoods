@@ -4,9 +4,9 @@
 
   var myData = [];
   var datafileURL = "data.json";
-  var Folder_Slides=[];
-  var CURRENT_SLIDE=1;
-  var VIEW_WIDTH=85;
+  var Folder_Slides = [];
+  var CURRENT_SLIDE = 1;
+  var VIEW_WIDTH = 85;
 
   function init() {
 
@@ -17,42 +17,42 @@
         var copyText = document.getElementById("urlholder");
         copyText.select();
         document.execCommand("copy");
-        console.log('copied...'+copyText.value);
+        console.log('copied...' + copyText.value);
       });
 
       $('.theme-icons').on("click", function (evt) {
-        if(evt.target.classList.contains('fa-moon-o')){
+        if (evt.target.classList.contains('fa-moon-o')) {
           $('body').addClass('blk-on-blk');
         }
-        else{
+        else {
           $('body').removeClass('blk-on-blk');
         }
-        
+
       });
 
       $('.nav-bar .fa').on("click", function (evt) {
-        var isleft =evt.target.classList.contains('left');
-        if(isleft){
+        var isleft = evt.target.classList.contains('left');
+        if (isleft) {
           CURRENT_SLIDE--;
-          if(CURRENT_SLIDE<1){
-            CURRENT_SLIDE=1;
+          if (CURRENT_SLIDE < 1) {
+            CURRENT_SLIDE = 1;
           }
-          
+
         }
-        else{
+        else {
           CURRENT_SLIDE++;
-          if(CURRENT_SLIDE > $('.slide').length){
+          if (CURRENT_SLIDE > $('.slide').length) {
             CURRENT_SLIDE--;
           }
         }
 
         $('.slide.curslide').removeClass('curslide');
-        $('.slide[data-idx="'+CURRENT_SLIDE+'"]').addClass('curslide');
+        $('.slide[data-idx="' + CURRENT_SLIDE + '"]').addClass('curslide');
 
-        var pos = $('.slide[data-idx="'+CURRENT_SLIDE+'"]').attr('data-pos');
-        pos = (pos*-1)+'vw';
-        $('.slide-frame').css({'left':pos});
-        
+        var pos = $('.slide[data-idx="' + CURRENT_SLIDE + '"]').attr('data-pos');
+        pos = (pos * -1) + 'vw';
+        $('.slide-frame').css({ 'left': pos });
+
       });
 
     });
@@ -78,34 +78,56 @@
       }
     };
 
-    var ts = '?_='+new Date().getMilliseconds();
-    xmlhttp.open("GET", datafileURL+ts, true);
-    xmlhttp.setRequestHeader("Cache-Control","no-cache");
+    var ts = '?_=' + new Date().getMilliseconds();
+    xmlhttp.open("GET", datafileURL + ts, true);
+    xmlhttp.setRequestHeader("Cache-Control", "no-cache");
     xmlhttp.send();
   }
 
   function LoadMain() {
     // $('.menu-list li:first').trigger('click');
 
-    var framewidth=Folder_Slides.length*VIEW_WIDTH;
-    $('.slide-frame').width(framewidth+'vw');
-    $('.slide-frame').css({'left':'0vw'});
-    
+    var framewidth = Folder_Slides.length * VIEW_WIDTH;
+    $('.slide-frame').width(framewidth + 'vw');
+    $('.slide-frame').css({ 'left': '0vw' });
 
-    for(var i=0;i<Folder_Slides.length;i++){
+    for (var i = 0; i < Folder_Slides.length; i++) {
       var slide = document.createElement('div');
-      slide.setAttribute('data-archnbr', Folder_Slides[i]);
-      slide.setAttribute('data-pos', i*VIEW_WIDTH);
-      slide.setAttribute('data-idx', (i+1));
+      slide.setAttribute('data-archnbr', Folder_Slides[i].archiveNbr);
+      slide.setAttribute('data-pos', i * VIEW_WIDTH);
+      slide.setAttribute('data-idx', (i + 1));
       slide.classList.add('slide');
-      if(i==0){
+      if (i == 0) {
         slide.classList.add('curslide');
-        
       }
-      slide.innerText = Folder_Slides[i];
+      // slide.innerText = Folder_Slides[i];
       $('.slide-frame').append(slide);
-      //myData.Folders.archiveNbr
     }
+
+    $.each($('.slide'), function (idx, val) {
+      var arch = $(val).attr('data-archnbr');
+      fetchChild(myData, { key: 'archiveNbr', val: arch }).then(function (res) {
+        var header = document.createElement('div');
+        header.classList.add('h1');
+        header.innerText = res.displayName;
+        $(val).append(header);
+        if (res.Files) {
+          var fileContainer = document.createElement('div');
+          fileContainer.classList.add('file-list');
+          res.Files.forEach(function (f) {
+            var file = document.createElement('div');
+            file.classList.add('file');
+            file.setAttribute('data-archnbr', f.archiveNbr);
+            file.style.backgroundImage = 'url(' + f.thumbURL200 + ')';
+            // file.addEventListener('click', OnFileClick, { useCapture: true });
+            fileContainer.appendChild(file);
+          });
+          $(val).append(fileContainer);
+        }
+
+      });
+    });
+
 
   }
 
@@ -117,7 +139,7 @@
     // $('.left-menu .thumb').append(img);
     // $('.left-menu > .name')[0].innerText = myData.Profile.fullName;
 
-     $('.school-name')[0].innerText = myData.Profile.fullName;
+    $('.school-name')[0].innerText = myData.Profile.fullName;
 
     if (myData.Folders) {
       //build public root
@@ -143,7 +165,7 @@
         li.addEventListener('click', OnClick);
         li.appendChild(ul);
       }
-      
+
       li.addEventListener('click', OnClick, { useCapture: true });
       $('.left-menu ul').append(li);
 
@@ -166,7 +188,7 @@
         icon.classList.add('fa-2x');
         li.setAttribute('data-archnbr', f.archiveNbr);
 
-        Folder_Slides.push(f.archiveNbr);
+        Folder_Slides.push({'archiveNbr':f.archiveNbr,'displayName':f.displayName});
 
 
         if (f.Folders && f.Folders.length > 0) {
@@ -294,13 +316,13 @@
     var archNbr = evt.currentTarget.getAttribute('data-archnbr');
     var res = fetchChild(myData, { key: 'archiveNbr', val: archNbr }).then(function (res) {
       $('#myModalLabel').text(res.displayName);
-      if(res.type.indexOf('audio') > -1 || res.type.indexOf('video') > -1){
+      if (res.type.indexOf('audio') > -1 || res.type.indexOf('video') > -1) {
         $('#urlholder').val(res.fileURL);
       }
-      else{
+      else {
         $('#urlholder').val(res.thumbURL2000);
       }
-      
+
       viewImage(res);
     });
 

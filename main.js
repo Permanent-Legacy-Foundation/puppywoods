@@ -4,6 +4,9 @@
 
   var myData = [];
   var datafileURL = "data.json";
+  var Folder_Slides=[];
+  var CURRENT_SLIDE=1;
+  var VIEW_WIDTH=85;
 
   function init() {
 
@@ -27,6 +30,31 @@
         
       });
 
+      $('.nav-bar .fa').on("click", function (evt) {
+        var isleft =evt.target.classList.contains('left');
+        if(isleft){
+          CURRENT_SLIDE--;
+          if(CURRENT_SLIDE<1){
+            CURRENT_SLIDE=1;
+          }
+          
+        }
+        else{
+          CURRENT_SLIDE++;
+          if(CURRENT_SLIDE > $('.slide').length){
+            CURRENT_SLIDE--;
+          }
+        }
+
+        $('.slide.curslide').removeClass('curslide');
+        $('.slide[data-idx="'+CURRENT_SLIDE+'"]').addClass('curslide');
+
+        var pos = $('.slide[data-idx="'+CURRENT_SLIDE+'"]').attr('data-pos');
+        pos = (pos*-1)+'vw';
+        $('.slide-frame').css({'left':pos});
+        
+      });
+
     });
   }
 
@@ -39,7 +67,7 @@
         if (xmlhttp.status == 200) {
           myData = JSON.parse(xmlhttp.responseText);
           buildLeftNav();
-          $('.menu-list li:first').trigger('click');
+          LoadMain();
         }
         else if (xmlhttp.status == 400) {
           alert('There was an error 400');
@@ -52,18 +80,44 @@
 
     var ts = '?_='+new Date().getMilliseconds();
     xmlhttp.open("GET", datafileURL+ts, true);
-    // xmlhttp.setRequestHeader("Cache-Control","no-cache");
     xmlhttp.setRequestHeader("Cache-Control","no-cache");
     xmlhttp.send();
+  }
+
+  function LoadMain() {
+    // $('.menu-list li:first').trigger('click');
+
+    var framewidth=Folder_Slides.length*VIEW_WIDTH;
+    $('.slide-frame').width(framewidth+'vw');
+    $('.slide-frame').css({'left':'0vw'});
+    
+
+    for(var i=0;i<Folder_Slides.length;i++){
+      var slide = document.createElement('div');
+      slide.setAttribute('data-archnbr', Folder_Slides[i]);
+      slide.setAttribute('data-pos', i*VIEW_WIDTH);
+      slide.setAttribute('data-idx', (i+1));
+      slide.classList.add('slide');
+      if(i==0){
+        slide.classList.add('curslide');
+        
+      }
+      slide.innerText = Folder_Slides[i];
+      $('.slide-frame').append(slide);
+      //myData.Folders.archiveNbr
+    }
+
   }
 
 
   function buildLeftNav() {
 
-    var img = document.createElement('img');
-    img.src = myData.Profile.Files[0].thumbURL200;
-    $('.left-menu .thumb').append(img);
-    $('.left-menu > .name')[0].innerText = myData.Profile.fullName;
+    // var img = document.createElement('img');
+    // img.src = myData.Profile.Files[0].thumbURL200;
+    // $('.left-menu .thumb').append(img);
+    // $('.left-menu > .name')[0].innerText = myData.Profile.fullName;
+
+     $('.school-name')[0].innerText = myData.Profile.fullName;
 
     if (myData.Folders) {
       //build public root
@@ -111,6 +165,8 @@
         icon.classList.add('fa');
         icon.classList.add('fa-2x');
         li.setAttribute('data-archnbr', f.archiveNbr);
+
+        Folder_Slides.push(f.archiveNbr);
 
 
         if (f.Folders && f.Folders.length > 0) {
@@ -174,7 +230,7 @@
     else {
       var n = evt.currentTarget.getAttribute('data-archnbr');
     }
-    loadFolder(archNbr);
+    // loadFolder(archNbr);
 
   }
 
